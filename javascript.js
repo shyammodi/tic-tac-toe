@@ -1,7 +1,7 @@
 // javascript.js
 
 //makes game with public methods playRound, getIsPlayer1turn, getGameOutcome, resetGame. Also allows getName and setName for a Player.
-function createGame() {
+const game = (function createGame() {
     let gameboard = new Array(9).fill(0);
     let Player1 = makePlayer();
     let Player2 = makePlayer();
@@ -72,7 +72,7 @@ function createGame() {
         getGameOutcome,
         resetGame
     }
-};
+})();
 
 //makes player with public methods selectSquare, getPlayerSelections
 function makePlayer() {
@@ -93,7 +93,7 @@ function makePlayer() {
 }
 
 //makes screen controller
-function createScreenController(game) {
+const screenController = (function createScreenController() {
     const squares = getSquaresArray();
     for (let i = 0; i < squares.length; i++) {
         squares[i].addEventListener("click", function(e) {
@@ -189,6 +189,4 @@ function createScreenController(game) {
         getOutcomeAnnouncement().textContent = "";
     }
 
-}
-
-createScreenController(createGame());
+})();
