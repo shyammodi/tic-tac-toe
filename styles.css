@@ -1,0 +1,14 @@
+#gameboard {
+    display: grid;
+    grid-template: 100px 100px 100px / 100px 100px 100px;
+}
+
+#gameboard .selected {
+    font-size: x-large;
+    border: 1px solid black;
+    color: red;
+}
+
+div {
+    margin-bottom: 20px;
+}

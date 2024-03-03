@@ -1,5 +1,6 @@
 // javascript.js
 
+//makes game with public methods playRound, getIsPlayer1turn, getGameOutcome, resetGame. Also allows getName and setName for a Player.
 function createGame() {
     let gameboard = new Array(9).fill(0);
     let Player1 = makePlayer();
@@ -58,38 +59,24 @@ function createGame() {
         return isPlayer1turn;
     }
 
-    function getGameboard() {
-        return gameboard;
+    function resetGame() {
+        gameboard = new Array(9).fill(0);
+        Player1 = makePlayer();
+        Player2 = makePlayer();
+        isPlayer1turn = true;
     }
 
     return {
-        getGameboard,
-        Player1: {
-            getName: Player1.getName,
-            setName: Player1.setName
-        },
-        Player2: {
-            getName: Player2.getName,
-            setName: Player2.setName
-        },
         playRound,
         getIsPlayer1turn,
-        getGameOutcome
+        getGameOutcome,
+        resetGame
     }
 };
 
+//makes player with public methods selectSquare, getPlayerSelections
 function makePlayer() {
-    let name = "";
     let playerSelections = [];
-
-    function setName(theName) {
-        name = theName;
-        return name;
-    }
-
-    function getName() {
-        return name;
-    }
 
     function selectSquare(k) {
         playerSelections.push(k);
@@ -101,15 +88,111 @@ function makePlayer() {
     }
 
     return {
-        getName, setName, selectSquare, getPlayerSelections
+        selectSquare, getPlayerSelections
     };
 }
 
-const game = createGame();
-while (game.getGameOutcome() === 0)
-{
-    const selection = window.prompt("select a number from 0 to 8 corresponding to your square selection");
-    game.playRound(parseInt(selection));
-    console.log(game.getGameboard());
+//makes screen controller
+function createScreenController(game) {
+    const squares = getSquaresArray();
+    for (let i = 0; i < squares.length; i++) {
+        squares[i].addEventListener("click", function(e) {
+            modifyClickedSquare(e, game);
+        });
+    }
+
+    const resetButton = getResetButton();
+    resetButton.addEventListener("click", resetGame)
+
+    function getSquaresArray() {
+        const squares = Array.from(document.querySelectorAll("#gameboard button"));
+        return squares;
+    }
+
+    function getGameboard () {
+        return document.querySelector("#gameboard");
+    }
+
+    function getResetButton () {
+        return document.querySelector("#resetGame");
+    }
+
+    function getPlayer1Name () {
+        return document.querySelector("#Player1Name").value;
+    }
+
+    function getPlayer2Name () {
+        return document.querySelector("#Player2Name").value;
+    }
+
+    function getOutcomeAnnouncement() {
+        return document.querySelector("h1");
+    }
+
+    function modifyClickedSquare(e, game) {
+        const isPlayer1turn = game.getIsPlayer1turn();
+        if(e.target.classList.contains("selected")) {
+            console.warn("square is already selected");
+        }
+        else {
+            e.target.classList.add("selected");
+            if (isPlayer1turn) {
+                // e.target.classList.add("selected1");
+                e.target.textContent = "X";
+                game.playRound(parseInt(e.target.id));
+                e.target.disabled = true;
+            }
+            else {
+                // e.target.classList.add("selected2");
+                e.target.textContent = "O";
+                game.playRound(parseInt(e.target.id));
+                e.target.disabled = true;
+            }
+            console.log(game.getGameOutcome());
+            if (game.getGameOutcome() !== 0) {
+                endGame(game.getGameOutcome());
+            }
+        }
+    }
+
+    function endGame(gameOutcome) {
+        getSquaresArray().forEach(element => element.disabled = true);
+        const outcomeAnnouncement = document.createElement("h1");
+        if (gameOutcome === -1) {
+            outcomeAnnouncement.textContent = "Tie!";
+        }
+        else if (gameOutcome === 1) {
+            if (getPlayer1Name().length > 0) {
+                outcomeAnnouncement.textContent = getPlayer1Name() + " Wins!"
+            }
+            else {
+                outcomeAnnouncement.textContent = "Player 1 Wins!"
+            }
+        }
+        else if (gameOutcome === 2) {
+            if (getPlayer2Name().length > 0) {
+                outcomeAnnouncement.textContent = getPlayer2Name() + " Wins!"
+            }
+            else {
+                outcomeAnnouncement.textContent = "Player 2 Wins!"
+            }
+        }
+        else {
+            console.error("Endgame called with invalid gameOutcome: " + gameOutcome);
+        }
+        getGameboard().insertAdjacentElement("afterend", outcomeAnnouncement);
+    }
+
+    function resetGame () {
+        game.resetGame();
+        getSquaresArray().forEach(element => {
+            element.classList.remove(...element.classList);
+            element.disabled = false;
+            element.textContent = ""
+        });
+        getOutcomeAnnouncement().textContent = "";
+    }
+
 }
-console.log(game.getGameOutcome());
+
+createScreenController(createGame());
