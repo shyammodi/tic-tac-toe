@@ -136,17 +136,13 @@ function createScreenController(game) {
         }
         else {
             e.target.classList.add("selected");
+            game.playRound(parseInt(e.target.id));
+            e.target.disabled = true;
             if (isPlayer1turn) {
-                // e.target.classList.add("selected1");
                 e.target.textContent = "X";
-                game.playRound(parseInt(e.target.id));
-                e.target.disabled = true;
             }
             else {
-                // e.target.classList.add("selected2");
                 e.target.textContent = "O";
-                game.playRound(parseInt(e.target.id));
-                e.target.disabled = true;
             }
             console.log(game.getGameOutcome());
             if (game.getGameOutcome() !== 0) {
